@@ -4,19 +4,57 @@
 #include <iostream>
 #include <winsock2.h>
 
+#pragma comment(lib, "ws2_32.lib")
+
 int main()
 {
     std::cout << "Starting server...\n";
+	// Server side step:
+	// 1.WSAStartup
+	// 2.Create soket
+	// 3.Bind socket
+	// 4.Listenning
+	// 5.Accept
+	// 6.Communication client - server.......
+	// 7.WSACleanUp
 
+	// 1. WSAStartup: Load winsock library
+	WSAData wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+	// 2. Create socket
+	// 2.1. AF_INET: IPv4
+	// 2.2. SOCK_STREAM: TCP/IP
+	//		SOCK_DGRAM: UDP/IP
+	// 2.3. IPPROTO_TCP: TCP
+	//		IPPROTO_UDP: UDP
+	SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+	// 3. Bind socket
+	SOCKADDR_IN udpAddress;
+	int port = 6900;
+	udpAddress.sin_family = AF_INET;
+	udpAddress.sin_port = htons(port);
+	udpAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	sizeof(USHORT);
+	sizeof(IN_ADDR);
+	bind(udpSocket, (SOCKADDR*)&udpAddress, sizeof(udpAddress));
+
+	// 4. Listenning
+	listen(udpSocket, 5);
+
+	// 5. Accept a new connection when one arrives
+	SOCKADDR_IN clientAddress;
+	int clientAddressLength;
+	SOCKET newUdpSocket;
+	newUdpSocket = accept(udpSocket, (SOCKADDR*)&clientAddress, &clientAddressLength);
+	
+	// 6.Communication Server-Client
+
+	// Close socket
+	closesocket(newUdpSocket);
+	closesocket(udpSocket);
+
+	// 7. WsaCleanUp
+	WSACleanup();
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

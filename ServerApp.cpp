@@ -32,7 +32,7 @@ int main()
 
 	// 3. Bind socket
 	SOCKADDR_IN udpAddress;
-	int port = 6900;
+	int port = 9900;
 	udpAddress.sin_family = AF_INET;
 	udpAddress.sin_port = htons(port);
 	udpAddress.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -48,6 +48,10 @@ int main()
 	int clientAddressLength;
 	SOCKET newUdpSocket;
 	newUdpSocket = accept(udpSocket, (SOCKADDR*)&clientAddress, &clientAddressLength);
+	if (newUdpSocket == INVALID_SOCKET)
+	{
+		std::cout << "Connect failed" << std::endl;
+	}
 	
 	// 6.Communication Server-Client
 

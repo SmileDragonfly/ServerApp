@@ -28,7 +28,7 @@ int main()
 	//		SOCK_DGRAM: UDP/IP
 	// 2.3. IPPROTO_TCP: TCP
 	//		IPPROTO_UDP: UDP
-	SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	SOCKET udpSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	// 3. Bind socket
 	SOCKADDR_IN udpAddress;
@@ -38,22 +38,53 @@ int main()
 	udpAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 	sizeof(USHORT);
 	sizeof(IN_ADDR);
-	bind(udpSocket, (SOCKADDR*)&udpAddress, sizeof(udpAddress));
+	int iResult = bind(udpSocket, (SOCKADDR*)&udpAddress, sizeof(udpAddress));
+
+	if (iResult == SOCKET_ERROR) {
+		std::cout << "bind failed with error: " << WSAGetLastError() << std::endl;
+		closesocket(udpSocket);
+		WSACleanup();
+		return 1;
+	}
 
 	// 4. Listenning
-	listen(udpSocket, 5);
+	if (listen(udpSocket, 5) == SOCKET_ERROR)
+	{
+		std::cout << "socket_error" << std::endl;
+		int errorIndex = WSAGetLastError();
+		std::cout << "error_index = " << errorIndex << std::endl;
+	}
 
 	// 5. Accept a new connection when one arrives
-	SOCKADDR_IN clientAddress;
-	int clientAddressLength;
+	SOCKADDR_IN ClientAddress;
+	int clientAddressLength = sizeof(SOCKADDR_IN);
 	SOCKET newUdpSocket;
-	newUdpSocket = accept(udpSocket, (SOCKADDR*)&clientAddress, &clientAddressLength);
-	if (newUdpSocket == INVALID_SOCKET)
+
+	while (1)
 	{
-		std::cout << "Connect failed" << std::endl;
+		newUdpSocket = accept(udpSocket, (SOCKADDR*)&ClientAddress, &clientAddressLength);
+		if (newUdpSocket == INVALID_SOCKET)
+		{
+			std::cout << "accept failed with error: " << WSAGetLastError() << std::endl;
+			continue;
+		}
+		std::cout << "Client connected" << std::endl;
+		break;
 	}
 	
 	// 6.Communication Server-Client
+	while (1)
+	{
+		char buff[100];
+		int iRet = recv(newUdpSocket, (char*)buff, sizeof(buff), 0);
+		if (iRet == SOCKET_ERROR)
+		{
+			std::cout << "Server cant receive data" << std::endl;
+			continue;
+		}
+		buff[iRet] = '\0';
+		std::cout << buff << std::endl;
+	}
 
 	// Close socket
 	closesocket(newUdpSocket);
